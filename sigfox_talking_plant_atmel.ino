@@ -2,7 +2,7 @@
 /*
   Test for Atmel SIGFOX shield ATAB0101A.
   This Arduino sketch sends power supply voltage measure and temperature measure
-  every 15 minutes (or when shield button is pressed), using SIGFOX network.
+  every hour (or when shield button is pressed), using SIGFOX network.
   This sketch uses the Atmel SIGFOX shield library included.
 */
 /*****************************************************************************/
@@ -90,8 +90,6 @@ void sensorActivity()
     count++;                         // increment samples counter
     Serial.print("Sample number ");Serial.println(count);
     
-    SIGsh.SIGFOXon();                // switch on SIGFOX module and temp. module
-    SIGsh.TempOn();
     // Get photoresistance values and convert it in percentage
     lum = analogRead(photores);
     lum = map(lum, 0, 1023, 0, 100); // values between 0 and 1023. Need to be calibrated
@@ -101,10 +99,14 @@ void sensorActivity()
     
     //Get moisture sensor values
     moist = analogRead(moisture);
-    moist = map(moist, 0, 50, 0, 100); // values between 0 and 512. Need to be calibrated
+    moist = map(moist, 0, 50, 0, 100); // values between 0 and 1023. Need to be calibrated
     Serial.print("Ground humidity  : ");
     Serial.print(moist);
     Serial.println(" %");
+    
+    SIGsh.SIGFOXon();                // switch on SIGFOX module and temp. module
+    SIGsh.TempOn();
+    
     //Get power using lib
     unsigned int v=SIGsh.getVpwr();  // read power supply voltage
     Serial.print("  Power supply: ");Serial.print(v);Serial.println("mV");
