@@ -26,6 +26,10 @@
 */
 
 #include "AtmSIGFOXshd.h"    // Atmel SIGFOX shield library 
+#include <Sleep_n0m1.h> // https://github.com/n0m1/Sleep_n0m1
+
+Sleep sleep;
+
 
 SIGFOXshield SIGsh;          // load class SIGFOXshield
 
@@ -69,20 +73,26 @@ void setup() {
   SIGsh.SIGFOXoff();               // switch off SIGFOX module
   SIGsh.TempOff();                 // switch off temperature sensor
 
-  timer=millis()+TIMEINTERVALL;    // initialize timer for wake-up
+  //timer=millis()+TIMEINTERVALL;    // initialize timer for wake-up
+  timer = TIMEINTERVALL;
 }
 
 void loop() 
 {
   if (!ishere) return;
-  if (SIGsh.getButton())            // if it is sleeping but button pressed
-  {
-    sensorActivity();               // act
-    delay(300);
-  }
-  if (millis()>timer)               // if timer expired
-   {sensorActivity(); timer=millis()+TIMEINTERVALL;}  // act and reset timer
+//  if (SIGsh.getButton())            // if it is sleeping but button pressed
+//  {
+//    sensorActivity();               // act
+//    delay(300);
+//  }
+//  if (millis()>timer)               // if timer expired
+//   {sensorActivity(); timer=millis()+TIMEINTERVALL;}  // act and reset timer
   delay(300);
+  sensorActivity();
+  sleep.pwrDownMode(); //set sleep mode
+  sleep.sleepDelay(timer); //sleep for: sleepTime
+  delay(300);
+  
 }
 
 void sensorActivity()
@@ -99,7 +109,7 @@ void sensorActivity()
     
     //Get moisture sensor values
     moist = analogRead(moisture);
-    moist = map(moist, 0, 50, 0, 100); // values between 0 and 1023. Need to be calibrated
+    moist = map(moist, 0, 512, 0, 100); // values between 0 and 1023. Need to be calibrated
     Serial.print("Ground humidity  : ");
     Serial.print(moist);
     Serial.println(" %");
